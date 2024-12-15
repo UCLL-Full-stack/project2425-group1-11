@@ -105,3 +105,4 @@ dist
 
 .DS_Store
 .vscode
+back-end/test/relationTests.ts
