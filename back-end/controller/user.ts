@@ -12,11 +12,12 @@ const router = express.Router();
 
 /**
  * @swagger
- * /users:
+ * /users/signup:
  *   post:
  *     summary: Create a new user
  *     tags: [Users]
  *     description: Add a new user with a username, password, and role.
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
@@ -32,18 +33,55 @@ const router = express.Router();
  *                 example: "securePassword123"
  *               role:
  *                 type: string
- *                 example: "ADMIN"
+ *                 example: "USER"
  *     responses:
  *       201:
  *         description: User created successfully.
  *       400:
  *         description: Invalid input or error during creation.
  */
-router.post('/', async (req, res) => {
+router.post('/signup', async (req, res) => {
     const { username, password, role } = req.body;
     try {
-        const newUser = await userService.createUser(username, password, role);
+        const newUser = await userService.createUser({ username, password, role });
         res.status(201).json(newUser);
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
+ * @swagger
+ * /users/login:
+ *   post:
+ *     summary: Log in a user
+ *     tags: [Users]
+ *     description: Authenticate a user and return a JWT token.
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: "john_doe"
+ *               password:
+ *                 type: string
+ *                 example: "securePassword123"
+ *     responses:
+ *       200:
+ *         description: Successful login with JWT token.
+ *       400:
+ *         description: Invalid username or password.
+ */
+router.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    try {
+        const result = await userService.loginUser(username, password);
+        res.status(200).json(result);
     } catch (err: any) {
         res.status(400).json({ error: err.message });
     }
