@@ -16,6 +16,10 @@ const getAllBoards = async () => {
     });
 };
 
+// TODO Get all boards for a category
+
+// TODO Get all boards for a user
+
 // Gets a board by ID
 const getBoardById = async (id: number) => {
     return prisma.board.findUnique({

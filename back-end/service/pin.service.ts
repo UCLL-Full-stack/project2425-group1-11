@@ -36,6 +36,12 @@ const getAllPins = async () => {
     });
 };
 
+// TODO Gets all pins for a specific category
+
+// TODO Gets all pins for a specific user
+
+// TODO Gets all pins for a specific board
+
 // Gets a pin by ID
 const getPinById = async (id: number) => {
     return prisma.pin.findUnique({
