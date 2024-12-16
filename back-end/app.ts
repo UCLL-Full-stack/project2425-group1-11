@@ -8,9 +8,11 @@ import PinController from './controller/pin';
 import CategoryController from './controller/category';
 import UserController from './controller/user';
 import BoardController from './controller/board';
+import { expressjwt } from 'express-jwt';
+
+dotenv.config();
 
 const app = express();
-dotenv.config();
 const port = process.env.APP_PORT || 3000;
 
 app.use(cors());
@@ -19,11 +21,6 @@ app.use(bodyParser.json());
 app.get('/status', (req, res) => {
     res.json({ message: 'Back-end is running...' });
 });
-
-app.use('/pins', PinController);
-app.use('/categories', CategoryController);
-app.use('/users', UserController);
-app.use('/boards', BoardController);
 
 const swaggerOptions = {
     definition: {
@@ -38,12 +35,36 @@ const swaggerOptions = {
                 url: `http://localhost:${port}`,
             },
         ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                },
+            },
+        },
+        security: [{ bearerAuth: [] }],
     },
     apis: ['./controller/*.ts'],
 };
 
 const swaggerDocs = swaggerJSDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+app.use(
+    expressjwt({
+        secret: process.env.JWT_SECRET!,
+        algorithms: ['HS256'],
+    }).unless({
+        path: ['/status', '/users/login', '/users/signup'],
+    })
+);
+
+app.use('/pins', PinController);
+app.use('/categories', CategoryController);
+app.use('/users', UserController);
+app.use('/boards', BoardController);
 
 app.listen(port, () => {
     console.log(`Back-end is running on port ${port}.`);
