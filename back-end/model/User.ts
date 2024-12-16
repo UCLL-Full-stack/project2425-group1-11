@@ -1,12 +1,13 @@
 import { User as UserPrisma, Board as BoardPrisma, Pin as PinPrisma } from '@prisma/client';
 import { Board } from './board';
 import { Pin } from './pin';
+import { Role } from '../types';
 
 export class User {
     private id?: number;
     private username: string;
     private password: string;
-    private role: string;
+    private role: Role;
     private boards: Board[];
     private savedPins: Pin[];
 
@@ -14,7 +15,7 @@ export class User {
         id?: number;
         username: string;
         password: string;
-        role?: string;
+        role?: Role;
         boards?: Board[];
         savedPins?: Pin[];
     }) {
@@ -66,7 +67,7 @@ export class User {
             id: user.id,
             username: user.username,
             password: user.password,
-            role: user.role,
+            role: user.role as Role,
             boards: user.boards ? user.boards.map(Board.from) : [],
             savedPins: user.savedPins ? user.savedPins.map(Pin.from) : [],
         });
