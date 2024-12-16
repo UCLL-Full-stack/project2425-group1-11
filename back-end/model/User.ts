@@ -1,66 +1,74 @@
-import express from 'express';
-import userService from '../service/user.service';
+import { User as UserPrisma, Board as BoardPrisma, Pin as PinPrisma } from '@prisma/client';
+import { Board } from './board';
+import { Pin } from './pin';
 
-const router = express.Router();
+export class User {
+    private id?: number;
+    private username: string;
+    private password: string;
+    private role: string;
+    private boards: Board[];
+    private savedPins: Pin[];
 
-// Create a new user
-router.post('/', async (req, res) => {
-    const { username, password, role } = req.body;
-    try {
-        const newUser = await userService.createUser(username, password, role);
-        res.status(201).json(newUser);
-    } catch (err: any) {
-        res.status(400).json({ error: err.message });
+    constructor(user: {
+        id?: number;
+        username: string;
+        password: string;
+        role?: string;
+        boards?: Board[];
+        savedPins?: Pin[];
+    }) {
+        this.validate(user);
+
+        this.id = user.id;
+        this.username = user.username;
+        this.password = user.password;
+        this.role = user.role || 'USER';
+        this.boards = user.boards || [];
+        this.savedPins = user.savedPins || [];
     }
-});
 
-// Get all users
-router.get('/', async (req, res) => {
-    try {
-        const users = await userService.getAllUsers();
-        res.status(200).json(users);
-    } catch (err: any) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Get a user by ID
-router.get('/:id', async (req, res) => {
-    try {
-        const user = await userService.getUserById(parseInt(req.params.id, 10));
-        if (!user) {
-            res.status(404).json({ error: 'User not found' });
-        } else {
-            res.status(200).json(user);
+    validate(user: { username: string; password: string }) {
+        if (!user.username) {
+            throw new Error('Username is required');
         }
-    } catch (err: any) {
-        res.status(400).json({ error: err.message });
+        if (user.password.length < 8) {
+            throw new Error('Password must be at least 8 characters long');
+        }
     }
-});
 
-// Update a user
-router.put('/:id', async (req, res) => {
-    const id = parseInt(req.params.id, 10);
-    const data = req.body;
-
-    try {
-        const updatedUser = await userService.updateUser(id, data);
-        res.status(200).json(updatedUser);
-    } catch (err: any) {
-        res.status(400).json({ error: err.message });
+    getId(): number | undefined {
+        return this.id;
     }
-});
 
-// Delete a user
-router.delete('/:id', async (req, res) => {
-    const id = parseInt(req.params.id, 10);
-
-    try {
-        await userService.deleteUser(id);
-        res.status(204).send();
-    } catch (err: any) {
-        res.status(400).json({ error: err.message });
+    getUsername(): string {
+        return this.username;
     }
-});
 
-export default router;
+    getPassword(): string {
+        return this.password;
+    }
+
+    getRole(): string {
+        return this.role;
+    }
+
+    getBoards(): Board[] {
+        return this.boards;
+    }
+
+    getSavedPins(): Pin[] {
+        return this.savedPins;
+    }
+
+    static from(user: UserPrisma & { boards?: BoardPrisma[]; savedPins?: PinPrisma[] }): User {
+        return new User({
+            id: user.id,
+            username: user.username,
+            password: user.password,
+            role: user.role,
+            boards: user.boards ? user.boards.map(Board.from) : [],
+            savedPins: user.savedPins ? user.savedPins.map(Pin.from) : [],
+        });
+    }
+}
