@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 
 // Creates a new user with the given username, password, and role
 const createUser = async (username: string, password: string, role: string) => {
-    // Check if the username already exists
     const existingUser = await prisma.user.findUnique({ where: { username } });
     if (existingUser) throw new Error('Username already exists');
     if (password.length < 8) throw new Error('Password must be at least 8 characters long');
