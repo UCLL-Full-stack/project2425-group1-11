@@ -1,5 +1,8 @@
 import express from 'express';
 import userService from '../service/user.service';
+import { authenticate } from '../middleware/authenticate';
+import { authorize } from '../middleware/authorize';
+import { authorizeOwnerOrAdmin } from '../middleware/authorizeOwner';
 
 const router = express.Router();
 
@@ -93,14 +96,20 @@ router.post('/login', async (req, res) => {
  *   get:
  *     summary: Get all users
  *     tags: [Users]
- *     description: Retrieve a list of all users.
+ *     description: Retrieve a list of all users. Requires ADMIN role.
+ *     security:
+ *       - bearerAuth: [] # JWT authenticatie vereist
  *     responses:
  *       200:
- *         description: A list of users.
+ *         description: "A list of users."
+ *       403:
+ *         description: "Forbidden: Insufficient permissions."
+ *       401:
+ *         description: "Unauthorized: Missing or invalid token."
  *       500:
- *         description: Server error during retrieval.
+ *         description: "Server error during retrieval."
  */
-router.get('/', async (req, res) => {
+router.get('/', authenticate, authorize(['ADMIN']), async (req, res) => {
     try {
         const users = await userService.getAllUsers();
         res.status(200).json(users);
@@ -150,7 +159,9 @@ router.get('/:id', async (req, res) => {
  *   put:
  *     summary: Update a user
  *     tags: [Users]
- *     description: Update details of an existing user.
+ *     description: Update details of an existing user. Only ADMIN or the user themselves can perform this action.
+ *     security:
+ *       - bearerAuth: [] # Vereist JWT-authenticatie
  *     parameters:
  *       - in: path
  *         name: id
@@ -176,21 +187,30 @@ router.get('/:id', async (req, res) => {
  *                 example: "USER"
  *     responses:
  *       200:
- *         description: User updated successfully.
+ *         description: 'User updated successfully.'
+ *       403:
+ *         description: 'Forbidden: Only ADMIN or the user can update.'
+ *       401:
+ *         description: 'Unauthorized: Missing or invalid token.'
  *       400:
- *         description: Invalid input or error during update.
+ *         description: 'Invalid input or error during update.'
  */
-router.put('/:id', async (req, res) => {
-    const id = parseInt(req.params.id, 10);
-    const data = req.body;
+router.put(
+    '/:id',
+    authenticate,
+    authorizeOwnerOrAdmin((req) => parseInt(req.params.id, 10)),
+    async (req, res) => {
+        const id = parseInt(req.params.id, 10);
+        const data = req.body;
 
-    try {
-        const updatedUser = await userService.updateUser(id, data);
-        res.status(200).json(updatedUser);
-    } catch (err: any) {
-        res.status(400).json({ error: err.message });
+        try {
+            const updatedUser = await userService.updateUser(id, data);
+            res.status(200).json(updatedUser);
+        } catch (err: any) {
+            res.status(400).json({ error: err.message });
+        }
     }
-});
+);
 
 /**
  * @swagger
