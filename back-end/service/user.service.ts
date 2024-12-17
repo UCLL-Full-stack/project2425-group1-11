@@ -30,6 +30,31 @@ const createUser = async (data: UserInput): Promise<UserInput> => {
     };
 };
 
+// Logs in a user with the given username and password
+const loginUser = async (username: string, password: string): Promise<AuthenticationResponse> => {
+    const user = await prisma.user.findUnique({ where: { username } });
+
+    if (!user) throw new Error('Invalid username or password');
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) throw new Error('Invalid username or password');
+
+    const token = generateJwtToken({
+        id: user.id,
+        username: user.username,
+        role: user.role as 'USER' | 'ADMIN',
+    });
+
+    return {
+        token,
+        user: {
+            id: user.id,
+            username: user.username,
+            role: user.role as 'USER' | 'ADMIN',
+        },
+    };
+};
+
 // Gets all users
 const getAllUsers = async (): Promise<UserInput[]> => {
     const users = await prisma.user.findMany();
@@ -84,36 +109,6 @@ const deleteUser = async (id: number): Promise<UserInput> => {
         username: deletedUser.username,
         password: deletedUser.password,
         role: deletedUser.role as Role,
-    };
-};
-
-// Logs in a user with the given username and password
-const loginUser = async (username: string, password: string): Promise<AuthenticationResponse> => {
-    const user = await prisma.user.findUnique({
-        where: { username },
-    });
-
-    if (!user) {
-        throw new Error('Invalid username or password');
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-        throw new Error('Invalid username or password');
-    }
-
-    const token = generateJwtToken({
-        username: user.username,
-        role: user.role as Role,
-    });
-
-    return {
-        token,
-        user: {
-            id: user.id,
-            username: user.username,
-            role: user.role as Role,
-        },
     };
 };
 
