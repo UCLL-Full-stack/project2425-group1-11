@@ -6,6 +6,7 @@ import PinsGrid from '@components/pins/PinsGrid';
 import PinsService from '@services/PinService';
 import { GetServerSideProps } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import CreatePin from '@components/pins/CreatePin';
 
 const Home = () => {
     const [pins, setPins] = useState<any[]>([]);
@@ -69,6 +70,7 @@ const Home = () => {
                     </>
                 )}
             </div>
+            <CreatePin />
             <Footer />
         </>
     );
