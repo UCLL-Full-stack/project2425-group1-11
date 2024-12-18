@@ -91,14 +91,21 @@ router.get('/', async (req, res) => {
  *         description: Invalid request
  */
 router.get('/user/:userId', async (req, res) => {
+    const { userId } = req.params;
     try {
-        const boards = await boardService.getAllBoardsForUser(parseInt(req.params.userId, 10));
-        if (!boards || boards.length === 0) {
-            res.status(404).json({ error: 'Boards not found' });
-        } else {
-            res.status(200).json(boards);
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required.' });
         }
+
+        const boards = await boardService.getAllBoardsForUser(parseInt(userId, 10));
+
+        if (boards.length === 0) {
+            return res.status(404).json({ error: 'No boards found for this user.' });
+        }
+
+        res.status(200).json(boards);
     } catch (err: any) {
+        console.error('Error fetching boards:', err);
         res.status(400).json({ error: err.message });
     }
 });

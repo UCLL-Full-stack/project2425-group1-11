@@ -20,10 +20,25 @@ const getAllBoards = async () => {
 
 // Gets all boards for a user
 const getAllBoardsForUser = async (userId: number) => {
-    return prisma.board.findMany({
-        where: { userId },
-        include: { user: true, pins: true },
-    });
+    if (!userId) {
+        throw new Error('User ID is required.');
+    }
+
+    try {
+        const boards = await prisma.board.findMany({
+            where: {
+                userId: userId,
+            },
+            include: {
+                user: true,
+                pins: true,
+            },
+        });
+        return boards;
+    } catch (error) {
+        console.error('Error fetching boards:', error);
+        throw new Error('Failed to fetch boards from the database.');
+    }
 };
 
 // Gets a board by ID
