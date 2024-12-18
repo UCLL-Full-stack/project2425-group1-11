@@ -1,4 +1,40 @@
-import { getToken } from './LocalStorage';
+import { getToken } from './LocalStorageService';
+
+const createPin = async (data: {
+    title: string;
+    imageUrl: string;
+    description?: string;
+    categories?: number[];
+}) => {
+    const token = getToken();
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pins`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+        });
+
+        const responseText = await response.text();
+        console.log('Response Text:', responseText);
+
+        if (response.ok) {
+            const data = JSON.parse(responseText);
+            return data;
+        } else {
+            throw new Error(`Failed to create pin: ${responseText}`);
+        }
+    } catch (error) {
+        console.error('Error creating pin:', error);
+        throw new Error('Unable to create pin or invalid input.');
+    }
+};
 
 const getPins = async (page: number = 1): Promise<Response> => {
     try {
@@ -91,6 +127,7 @@ const removePinFromBoards = async (pinId: number, boardIds: number[]) => {
 };
 
 const PinsService = {
+    createPin,
     getPins,
     addPinToBoards,
     removePinFromBoards,

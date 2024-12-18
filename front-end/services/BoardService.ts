@@ -1,4 +1,4 @@
-import { getToken, getUserId } from './LocalStorage';
+import { getToken, getUserId } from './LocalStorageService';
 
 const updatePinBoards = async (pinId: number, boardIds: number[]) => {
     const token = getToken();
