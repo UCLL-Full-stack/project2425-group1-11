@@ -2,29 +2,39 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Creates a new pin with the given title, image URL, description, board IDs, and category IDs
+// Creates a new pin with the given title, image URL, description, and optional category IDs
 const createPin = async (data: {
     title: string;
     imageUrl: string;
     description?: string;
-    boardIds?: number[];
-    categories?: number[];
+    categories?: number[]; // Optional categories
 }) => {
     return prisma.pin.create({
         data: {
             title: data.title,
             imageUrl: data.imageUrl,
             description: data.description,
-            boards: {
-                connect: data.boardIds?.map((id) => ({ id })),
-            },
             categories: {
                 connect: data.categories?.map((id) => ({ id })),
             },
         },
         include: {
-            boards: true,
             categories: true,
+        },
+    });
+};
+
+// Links an existing pin to a board of the user
+const addPinToBoard = async (pinId: number, boardId: number) => {
+    return prisma.pin.update({
+        where: { id: pinId },
+        data: {
+            boards: {
+                connect: { id: boardId },
+            },
+        },
+        include: {
+            boards: true,
         },
     });
 };
@@ -133,6 +143,7 @@ const deletePin = async (id: number) => {
 
 export default {
     createPin,
+    addPinToBoard,
     getAllPins,
     getPinsByCategory,
     getPinsByUser,

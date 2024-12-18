@@ -16,7 +16,7 @@ const router = express.Router();
  *   post:
  *     summary: Create a new pin
  *     tags: [Pins]
- *     description: Add a new pin with optional categories and boards association.
+ *     description: Add a new pin with optional categories. Pins can be linked to boards later.
  *     requestBody:
  *       required: true
  *       content:
@@ -33,11 +33,6 @@ const router = express.Router();
  *               description:
  *                 type: string
  *                 example: "A beautiful sunset view."
- *               boardIds:
- *                 type: array
- *                 items:
- *                   type: integer
- *                 example: [1, 2]
  *               categories:
  *                 type: array
  *                 items:
@@ -51,15 +46,55 @@ const router = express.Router();
  */
 router.post('/', async (req, res) => {
     try {
-        const { title, imageUrl, description, boardIds, categories } = req.body;
+        const { title, imageUrl, description, categories } = req.body;
         const pin = await pinService.createPin({
             title,
             imageUrl,
             description,
-            boardIds,
             categories,
         });
         res.status(201).json(pin);
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
+ * @swagger
+ * /pins/{id}/boards:
+ *   post:
+ *     summary: Add an existing pin to a board
+ *     tags: [Pins]
+ *     description: Link a pin to a board by providing the pin ID and board ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the pin to link.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               boardId:
+ *                 type: integer
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Pin linked to the board successfully.
+ *       400:
+ *         description: Invalid input or error during the linking process.
+ */
+router.post('/:id/boards', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { boardId } = req.body;
+        const updatedPin = await pinService.addPinToBoard(Number(id), boardId);
+        res.status(200).json(updatedPin);
     } catch (err: any) {
         res.status(400).json({ error: err.message });
     }
