@@ -18,7 +18,13 @@ const getAllBoards = async () => {
 
 // TODO Get all boards for a category
 
-// TODO Get all boards for a user
+// Gets all boards for a user
+const getAllBoardsForUser = async (userId: number) => {
+    return prisma.board.findMany({
+        where: { userId },
+        include: { user: true, pins: true },
+    });
+};
 
 // Gets a board by ID
 const getBoardById = async (id: number) => {
@@ -46,6 +52,7 @@ const deleteBoard = async (id: number) => {
 export default {
     createBoard,
     getAllBoards,
+    getAllBoardsForUser,
     getBoardById,
     updateBoard,
     deleteBoard,

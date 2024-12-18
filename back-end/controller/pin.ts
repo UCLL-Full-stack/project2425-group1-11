@@ -44,16 +44,12 @@ const router = express.Router();
  *       400:
  *         description: Invalid input or error during creation.
  */
-router.post('/', async (req, res) => {
+router.put('/:id/boards', async (req, res) => {
     try {
-        const { title, imageUrl, description, categories } = req.body;
-        const pin = await pinService.createPin({
-            title,
-            imageUrl,
-            description,
-            categories,
-        });
-        res.status(201).json(pin);
+        const { id } = req.params;
+        const { boardIds } = req.body;
+        const updatedPin = await pinService.addPinToBoards(Number(id), boardIds);
+        res.status(200).json(updatedPin);
     } catch (err: any) {
         res.status(400).json({ error: err.message });
     }
@@ -63,9 +59,9 @@ router.post('/', async (req, res) => {
  * @swagger
  * /pins/{id}/boards:
  *   post:
- *     summary: Add an existing pin to a board
+ *     summary: Add an existing pin to multiple boards
  *     tags: [Pins]
- *     description: Link a pin to a board by providing the pin ID and board ID.
+ *     description: Link a pin to multiple boards by providing the pin ID and an array of board IDs.
  *     parameters:
  *       - in: path
  *         name: id
@@ -80,20 +76,59 @@ router.post('/', async (req, res) => {
  *           schema:
  *             type: object
  *             properties:
- *               boardId:
- *                 type: integer
- *                 example: 1
+ *               boardIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 example: [1, 2, 3]
  *     responses:
  *       200:
- *         description: Pin linked to the board successfully.
+ *         description: Pin linked to the boards successfully.
  *       400:
  *         description: Invalid input or error during the linking process.
  */
 router.post('/:id/boards', async (req, res) => {
     try {
         const { id } = req.params;
-        const { boardId } = req.body;
-        const updatedPin = await pinService.addPinToBoard(Number(id), boardId);
+        const { boardIds } = req.body;
+        const updatedPin = await pinService.addPinToBoards(Number(id), boardIds);
+        res.status(200).json(updatedPin);
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
+ * @swagger
+ * /pins/{id}/boards/{boardId}:
+ *   delete:
+ *     summary: Remove a pin from a board
+ *     tags: [Pins]
+ *     description: Unlink a pin from a board by providing the pin ID and board ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the pin to unlink.
+ *       - in: path
+ *         name: boardId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the board to unlink.
+ *     responses:
+ *       200:
+ *         description: Pin unlinked from the board successfully.
+ *       400:
+ *         description: Invalid input or error during the unlinking process.
+ */
+router.delete('/:id/boards', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { boardIds } = req.body;
+        const updatedPin = await pinService.removePinFromBoards(Number(id), boardIds);
         res.status(200).json(updatedPin);
     } catch (err: any) {
         res.status(400).json({ error: err.message });
@@ -104,18 +139,36 @@ router.post('/:id/boards', async (req, res) => {
  * @swagger
  * /pins:
  *   get:
- *     summary: Get all pins
+ *     summary: Get all pins with pagination
  *     tags: [Pins]
- *     description: Retrieve a list of all pins.
+ *     description: Retrieve a paginated list of pins, sorted by newest first.
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: The page number (default is 1).
+ *       - in: query
+ *         name: pageSize
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 12
+ *         description: The number of pins per page (default is 12).
  *     responses:
  *       200:
- *         description: A list of pins.
+ *         description: A paginated list of pins.
  *       500:
  *         description: Server error during retrieval.
  */
 router.get('/', async (req, res) => {
     try {
-        const pins = await pinService.getAllPins();
+        const page = parseInt(req.query.page as string, 10) || 1; // Default to page 1
+        const pageSize = parseInt(req.query.pageSize as string, 10) || 12; // Default to 12 items per page
+
+        const pins = await pinService.getAllPins(page, pageSize);
         res.status(200).json(pins);
     } catch (err: any) {
         res.status(500).json({ error: err.message });

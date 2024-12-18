@@ -24,13 +24,13 @@ const createPin = async (data: {
     });
 };
 
-// Links an existing pin to a board of the user
-const addPinToBoard = async (pinId: number, boardId: number) => {
+// Links an existing pin to multiple boards of the user
+const addPinToBoards = async (pinId: number, boardIds: number[]) => {
     return prisma.pin.update({
         where: { id: pinId },
         data: {
             boards: {
-                connect: { id: boardId },
+                connect: boardIds.map((boardId) => ({ id: boardId })),
             },
         },
         include: {
@@ -39,12 +39,34 @@ const addPinToBoard = async (pinId: number, boardId: number) => {
     });
 };
 
-// Gets all pins
-const getAllPins = async () => {
+// Unlinks a pin from multiple boards of the user
+const removePinFromBoards = async (pinId: number, boardIds: number[]) => {
+    return prisma.pin.update({
+        where: { id: pinId },
+        data: {
+            boards: {
+                disconnect: boardIds.map((boardId) => ({ id: boardId })),
+            },
+        },
+        include: {
+            boards: true,
+        },
+    });
+};
+
+// Gets paginated pins sorted by newest first
+const getAllPins = async (page: number = 1, pageSize: number = 12) => {
+    const skip = (page - 1) * pageSize;
+
     return prisma.pin.findMany({
+        take: pageSize,
+        skip: skip,
         include: {
             boards: true,
             categories: true,
+        },
+        orderBy: {
+            createdAt: 'desc',
         },
     });
 };
@@ -143,7 +165,8 @@ const deletePin = async (id: number) => {
 
 export default {
     createPin,
-    addPinToBoard,
+    addPinToBoards,
+    removePinFromBoards,
     getAllPins,
     getPinsByCategory,
     getPinsByUser,

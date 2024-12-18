@@ -70,6 +70,41 @@ router.get('/', async (req, res) => {
 
 /**
  * @swagger
+ * /boards/user/{userId}:
+ *   get:
+ *     summary: Get all boards for a user
+ *     tags: [Boards]
+ *     description: Retrieve all boards for a specific user
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the user
+ *     responses:
+ *       200:
+ *         description: Boards found
+ *       404:
+ *         description: Boards not found
+ *       400:
+ *         description: Invalid request
+ */
+router.get('/user/:userId', async (req, res) => {
+    try {
+        const boards = await boardService.getAllBoardsForUser(parseInt(req.params.userId, 10));
+        if (!boards || boards.length === 0) {
+            res.status(404).json({ error: 'Boards not found' });
+        } else {
+            res.status(200).json(boards);
+        }
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
+/**
+ * @swagger
  * /boards/{id}:
  *   get:
  *     summary: Get a specific board by ID
