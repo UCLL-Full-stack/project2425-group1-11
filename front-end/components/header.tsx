@@ -22,7 +22,7 @@ const Header: React.FC = () => {
                     </Link>
                 </h1>
                 <nav className="flex space-x-4">
-                    <Link href="/pins" className="text-gray-700 hover:text-black">
+                    <Link href="/" className="text-gray-700 hover:text-black">
                         {t('header.nav.pins')}
                     </Link>
                     <Link href="/boards" className="text-gray-700 hover:text-black">
