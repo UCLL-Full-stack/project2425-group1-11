@@ -100,11 +100,11 @@ router.post('/:id/boards', async (req, res) => {
 
 /**
  * @swagger
- * /pins/{id}/boards/{boardId}:
+ * /pins/{id}/boards:
  *   delete:
- *     summary: Remove a pin from a board
+ *     summary: Remove a pin from multiple boards
  *     tags: [Pins]
- *     description: Unlink a pin from a board by providing the pin ID and board ID.
+ *     description: Unlink a pin from multiple boards by providing the pin ID and an array of board IDs.
  *     parameters:
  *       - in: path
  *         name: id
@@ -112,22 +112,31 @@ router.post('/:id/boards', async (req, res) => {
  *         schema:
  *           type: integer
  *         description: The ID of the pin to unlink.
- *       - in: path
- *         name: boardId
- *         required: true
- *         schema:
- *           type: integer
- *         description: The ID of the board to unlink.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               boardIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 example: [1, 2]
  *     responses:
  *       200:
- *         description: Pin unlinked from the board successfully.
+ *         description: Pin unlinked from the boards successfully.
  *       400:
  *         description: Invalid input or error during the unlinking process.
  */
 router.delete('/:id/boards', async (req, res) => {
     try {
         const { id } = req.params;
-        const { boardIds } = req.body;
+        const { boardIds } = req.body; // Now expecting an array of boardIds
+        if (!boardIds || !Array.isArray(boardIds) || boardIds.length === 0) {
+            return res.status(400).json({ error: 'No boardIds provided or invalid format.' });
+        }
         const updatedPin = await pinService.removePinFromBoards(Number(id), boardIds);
         res.status(200).json(updatedPin);
     } catch (err: any) {
