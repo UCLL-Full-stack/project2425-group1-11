@@ -16,7 +16,7 @@ const router = express.Router();
  *   post:
  *     summary: Create a new pin
  *     tags: [Pins]
- *     description: Add a new pin with optional categories and board association.
+ *     description: Add a new pin with optional categories and boards association.
  *     requestBody:
  *       required: true
  *       content:
@@ -33,9 +33,11 @@ const router = express.Router();
  *               description:
  *                 type: string
  *                 example: "A beautiful sunset view."
- *               boardId:
- *                 type: integer
- *                 example: 1
+ *               boardIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 example: [1, 2]
  *               categories:
  *                 type: array
  *                 items:
@@ -49,12 +51,12 @@ const router = express.Router();
  */
 router.post('/', async (req, res) => {
     try {
-        const { title, imageUrl, description, boardId, categories } = req.body;
+        const { title, imageUrl, description, boardIds, categories } = req.body;
         const pin = await pinService.createPin({
             title,
             imageUrl,
             description,
-            boardId,
+            boardIds,
             categories,
         });
         res.status(201).json(pin);
@@ -150,9 +152,11 @@ router.get('/:id', async (req, res) => {
  *               description:
  *                 type: string
  *                 example: "An updated description."
- *               boardId:
- *                 type: integer
- *                 example: 2
+ *               boardIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 example: [2, 3]
  *               categories:
  *                 type: array
  *                 items:
@@ -166,14 +170,14 @@ router.get('/:id', async (req, res) => {
  */
 router.put('/:id', async (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const { title, imageUrl, description, boardId, categories } = req.body;
+    const { title, imageUrl, description, boardIds, categories } = req.body;
 
     try {
         const updatedPin = await pinService.updatePin(id, {
             title,
             imageUrl,
             description,
-            boardId,
+            boardIds,
             categories,
         });
         res.status(200).json(updatedPin);

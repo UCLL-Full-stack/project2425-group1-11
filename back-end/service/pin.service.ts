@@ -2,12 +2,12 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Creates a new pin with the given title, image URL, description, board ID, and category IDs
+// Creates a new pin with the given title, image URL, description, board IDs, and category IDs
 const createPin = async (data: {
     title: string;
     imageUrl: string;
     description?: string;
-    boardId?: number;
+    boardIds?: number[];
     categories?: number[];
 }) => {
     return prisma.pin.create({
@@ -15,12 +15,15 @@ const createPin = async (data: {
             title: data.title,
             imageUrl: data.imageUrl,
             description: data.description,
-            boardId: data.boardId,
+            boards: {
+                connect: data.boardIds?.map((id) => ({ id })),
+            },
             categories: {
                 connect: data.categories?.map((id) => ({ id })),
             },
         },
         include: {
+            boards: true,
             categories: true,
         },
     });
@@ -30,24 +33,63 @@ const createPin = async (data: {
 const getAllPins = async () => {
     return prisma.pin.findMany({
         include: {
-            board: true,
+            boards: true,
             categories: true,
         },
     });
 };
 
-// TODO Gets all pins for a specific category
+// Gets all pins for a specific category
+const getPinsByCategory = async (categoryId: number) => {
+    return prisma.pin.findMany({
+        where: {
+            categories: {
+                some: { id: categoryId },
+            },
+        },
+        include: {
+            boards: true,
+            categories: true,
+        },
+    });
+};
 
-// TODO Gets all pins for a specific user
+// Gets all pins for a specific user
+const getPinsByUser = async (userId: number) => {
+    return prisma.pin.findMany({
+        where: {
+            boards: {
+                some: { userId: userId },
+            },
+        },
+        include: {
+            boards: true,
+            categories: true,
+        },
+    });
+};
 
-// TODO Gets all pins for a specific board
+// Gets all pins for a specific board
+const getPinsByBoard = async (boardId: number) => {
+    return prisma.pin.findMany({
+        where: {
+            boards: {
+                some: { id: boardId },
+            },
+        },
+        include: {
+            boards: true,
+            categories: true,
+        },
+    });
+};
 
 // Gets a pin by ID
 const getPinById = async (id: number) => {
     return prisma.pin.findUnique({
         where: { id },
         include: {
-            board: true,
+            boards: true,
             categories: true,
         },
     });
@@ -60,7 +102,7 @@ const updatePin = async (
         title?: string;
         imageUrl?: string;
         description?: string;
-        boardId?: number;
+        boardIds?: number[];
         categories?: number[];
     }
 ) => {
@@ -70,14 +112,13 @@ const updatePin = async (
             title: data.title,
             imageUrl: data.imageUrl,
             description: data.description,
-            boardId: data.boardId,
+            boards: data.boardIds ? { set: data.boardIds.map((id) => ({ id })) } : undefined,
             categories: data.categories
-                ? {
-                      set: data.categories.map((id) => ({ id })),
-                  }
+                ? { set: data.categories.map((id) => ({ id })) }
                 : undefined,
         },
         include: {
+            boards: true,
             categories: true,
         },
     });
@@ -90,4 +131,13 @@ const deletePin = async (id: number) => {
     });
 };
 
-export default { createPin, getAllPins, getPinById, updatePin, deletePin };
+export default {
+    createPin,
+    getAllPins,
+    getPinsByCategory,
+    getPinsByUser,
+    getPinsByBoard,
+    getPinById,
+    updatePin,
+    deletePin,
+};
