@@ -17,10 +17,13 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
     const [selectedBoards, setSelectedBoards] = useState<Set<number>>(new Set());
     const [userHasBoards, setUserHasBoards] = useState(true);
 
+    const [initialSelectedBoards, setInitialSelectedBoards] = useState<Set<number>>(new Set());
+
     const fetchUserBoards = async () => {
         try {
             const response = await BoardService.getUserBoards();
             const data = response;
+
             if (data.length === 0) {
                 setUserHasBoards(false);
             } else {
@@ -31,6 +34,8 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
                     });
                     return acc;
                 }, []);
+
+                setInitialSelectedBoards(new Set(pinBoardIds));
                 setSelectedBoards(new Set(pinBoardIds));
             }
         } catch (error) {
@@ -48,15 +53,36 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
     const handleBoardToggle = (boardId: number) => {
         setSelectedBoards((prev) => {
             const updated = new Set(prev);
-            updated.has(boardId) ? updated.delete(boardId) : updated.add(boardId);
+
+            if (updated.has(boardId)) {
+                updated.delete(boardId);
+            } else {
+                updated.add(boardId);
+            }
+
             return updated;
         });
     };
 
     const handleSave = async () => {
         const selectedBoardsArray = Array.from(selectedBoards);
-        const response = await PinService.addPinToBoards(id, selectedBoardsArray);
-        alert(response.ok ? 'Pin added successfully!' : 'Error adding pin to boards');
+
+        const boardsToRemove = Array.from(initialSelectedBoards).filter(
+            (boardId) => !selectedBoards.has(boardId)
+        );
+
+        const boardsToAdd = selectedBoardsArray.filter(
+            (boardId) => !initialSelectedBoards.has(boardId)
+        );
+
+        if (boardsToRemove.length > 0) {
+            await PinService.removePinFromBoards(id, boardsToRemove);
+        }
+
+        if (boardsToAdd.length > 0) {
+            await PinService.addPinToBoards(id, boardsToAdd);
+        }
+
         setModalOpen(false);
     };
 
@@ -104,7 +130,7 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
             </div>
 
             <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
-                <div className="text-center">
+                <div>
                     <img
                         src={imageUrl}
                         alt={title}
@@ -138,7 +164,7 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
                             </h4>
                             <ul className="mb-6">
                                 {boards.map((board) => (
-                                    <li key={board.id} className="flex items-center gap-2 mb-2">
+                                    <li key={board.id} className="flex gap-2 mb-2">
                                         <input
                                             type="checkbox"
                                             checked={selectedBoards.has(board.id)}
