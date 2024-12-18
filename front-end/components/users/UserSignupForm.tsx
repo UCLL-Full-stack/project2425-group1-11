@@ -52,7 +52,7 @@ const UserSignupForm: React.FC = () => {
                 );
 
                 setStatusMessages([{ message: t('signup.success'), type: 'success' }]);
-                setTimeout(() => router.push('/'), 2000);
+                setTimeout(() => router.push('/tutorial'), 2000);
             } else {
                 setStatusMessages([{ message: t('signup.errorLogin'), type: 'error' }]);
             }
