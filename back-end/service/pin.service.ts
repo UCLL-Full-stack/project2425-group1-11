@@ -7,7 +7,7 @@ const createPin = async (data: {
     title: string;
     imageUrl: string;
     description?: string;
-    categories?: number[]; // Optional categories
+    categories?: number[];
 }) => {
     return prisma.pin.create({
         data: {

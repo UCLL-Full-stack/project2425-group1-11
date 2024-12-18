@@ -44,12 +44,12 @@ const router = express.Router();
  *       400:
  *         description: Invalid input or error during creation.
  */
-router.put('/:id/boards', async (req, res) => {
+router.post('/', async (req, res) => {
+    console.log(req.body);
+    const { title, imageUrl, description, categories } = req.body;
     try {
-        const { id } = req.params;
-        const { boardIds } = req.body;
-        const updatedPin = await pinService.addPinToBoards(Number(id), boardIds);
-        res.status(200).json(updatedPin);
+        const newPin = await pinService.createPin({ title, imageUrl, description, categories });
+        res.status(201).json(newPin);
     } catch (err: any) {
         res.status(400).json({ error: err.message });
     }
