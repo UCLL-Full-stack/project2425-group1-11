@@ -50,6 +50,7 @@ router.post('/', async (req, res) => {
  *     summary: Get all categories
  *     tags: [Categories]
  *     description: Retrieve a list of all categories.
+ *     security: []
  *     responses:
  *       200:
  *         description: A list of categories.

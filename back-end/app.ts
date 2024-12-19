@@ -57,7 +57,14 @@ app.use(
         secret: process.env.JWT_SECRET!,
         algorithms: ['HS256'],
     }).unless({
-        path: ['/status', '/users/login', '/users/signup'],
+        path: [
+            '/status',
+            '/users/login',
+            '/users/signup',
+            { url: '/boards', methods: ['GET'] },
+            { url: /^\/boards\/\d+$/, methods: ['GET'] },
+            { url: '/pins', methods: ['GET'] },
+        ],
     })
 );
 

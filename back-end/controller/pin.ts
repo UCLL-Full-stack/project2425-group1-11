@@ -166,6 +166,7 @@ router.delete('/:id/boards', async (req, res) => {
  *           type: integer
  *           default: 12
  *         description: The number of pins per page (default is 12).
+ *     security: []
  *     responses:
  *       200:
  *         description: A paginated list of pins.

@@ -53,6 +53,7 @@ router.post('/', async (req, res) => {
  *     summary: Retrieve all boards
  *     tags: [Boards]
  *     description: Get a list of all boards
+ *     security: []
  *     responses:
  *       200:
  *         description: A list of boards
@@ -124,6 +125,7 @@ router.get('/user/:userId', async (req, res) => {
  *         schema:
  *           type: integer
  *         description: The ID of the board
+ *     security: []
  *     responses:
  *       200:
  *         description: Board found
