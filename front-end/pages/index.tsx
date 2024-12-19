@@ -46,8 +46,7 @@ const Home = () => {
                 <title>Home - Pins</title>
             </Head>
             <Header />
-            <div className="container mx-auto py-8">
-                <h1 className="text-3xl font-bold text-center mb-6">Explore Pins</h1>
+            <div className="container mx-auto py-4">
                 {error ? (
                     <div className="text-red-500 text-center">{error}</div>
                 ) : (

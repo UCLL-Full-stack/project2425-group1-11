@@ -113,13 +113,13 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
                                 {categories.slice(0, 2).map((category) => (
                                     <li
                                         key={category.id}
-                                        className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded"
+                                        className="text-xs bg-red-100 text-gray-700 px-2 py-1 rounded"
                                     >
                                         {category.name}
                                     </li>
                                 ))}
                                 {categories.length > 2 && (
-                                    <li className="text-xs bg-gray-300 text-gray-800 px-2 py-1 rounded">
+                                    <li className="text-xs bg-red-100 text-gray-800 px-2 py-1 rounded">
                                         +{categories.length - 2}
                                     </li>
                                 )}
@@ -148,7 +148,7 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
                                 {categories.map((category) => (
                                     <li
                                         key={category.id}
-                                        className="text-sm bg-gray-200 text-gray-700 px-3 py-1 rounded"
+                                        className="text-sm bg-red-100 text-gray-700 px-3 py-1 rounded"
                                     >
                                         {category.name}
                                     </li>
@@ -169,7 +169,7 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
                                             type="checkbox"
                                             checked={selectedBoards.has(board.id)}
                                             onChange={() => handleBoardToggle(board.id)}
-                                            className="form-checkbox h-5 w-5 text-red-600"
+                                            className="form-checkbox h-5 w-5 text-red-600 hover:cursor-pointer accent-red-500"
                                         />
                                         <label className="text-gray-700">{board.name}</label>
                                     </li>
@@ -184,7 +184,6 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
                         </div>
                     ) : (
                         <div className="text-center text-red-500 mt-4">
-                            <p>No boards available.</p>
                             <a href="/boards" className="text-blue-600 hover:underline">
                                 Create a board
                             </a>

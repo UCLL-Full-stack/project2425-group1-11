@@ -15,7 +15,7 @@ const Language: React.FC = () => {
                 id="language"
                 value={locale}
                 onChange={handleLanguageChange}
-                className="bg-transparent border-b-2 border-red-300 text-gray-700 focus:outline-none focus:border-red-500 transition-all cursor-pointer"
+                className="bg-transparent border-b-2 border-gray-300 text-gray-700 focus:outline-none focus:border-red-600 text-lg cursor-pointer rounded-md py-1 px-2 transition-all ease-in-out bg-white"
             >
                 <option value="en" className="text-gray-700">
                     English

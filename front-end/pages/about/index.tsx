@@ -6,14 +6,16 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 const About: React.FC = () => {
     return (
-        <>
+        <div className="flex flex-col min-h-screen">
             <Head>
                 <title>About Pinnacle</title>
             </Head>
             <Header />
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-                <div className="bg-white shadow-lg rounded-lg p-8 max-w-2xl text-center">
-                    <h1 className="text-4xl font-bold text-gray-800 mb-4">About Pinnacle</h1>
+            <div className="flex flex-col items-center justify-center flex-grow">
+                <div className="bg-white shadow-lg rounded-lg p-8 max-w-2xl">
+                    <h1 className="text-4xl font-bold text-gray-800 mb-4 text-center">
+                        About Pinnacle
+                    </h1>
                     <p className="text-gray-600 text-lg mb-6">
                         Pinnacle is a school project created by Senne Cools. It is a
                         Pinterest-inspired application designed to organize and share your favorite
@@ -27,7 +29,7 @@ const About: React.FC = () => {
                 </div>
             </div>
             <Footer />
-        </>
+        </div>
     );
 };
 

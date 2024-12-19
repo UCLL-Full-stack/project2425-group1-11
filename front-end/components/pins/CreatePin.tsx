@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Modal from '@components/ui/Modal';
 import CategoryService from '@services/CategoryService';
 import PinService from '@services/PinService';
+import { isUserLoggedIn } from '@services/LocalStorageService';
+import { useRouter } from 'next/router';
 
 const CreatePin: React.FC = () => {
     const [isModalOpen, setModalOpen] = useState(false);
@@ -13,6 +15,7 @@ const CreatePin: React.FC = () => {
     });
     const [categories, setCategories] = useState<any[]>([]);
     const [errors, setErrors] = useState<any>({});
+    const router = useRouter();
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -86,12 +89,20 @@ const CreatePin: React.FC = () => {
         }
     };
 
+    const handleCreatePinClick = () => {
+        if (!isUserLoggedIn()) {
+            router.push('/login');
+        } else {
+            setModalOpen(true);
+        }
+    };
+
     return (
         <>
             {/* Floating Action Button */}
             <div
-                onClick={() => setModalOpen(true)}
-                className="fixed bottom-4 right-4 bg-red-600 text-white rounded-full p-6 shadow-lg cursor-pointer"
+                onClick={handleCreatePinClick}
+                className="fixed bottom-4 right-4 bg-red-500 text-white rounded-full p-6 shadow-lg cursor-pointer transition-transform transform hover:scale-105 hover:bg-red-600"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -99,7 +110,7 @@ const CreatePin: React.FC = () => {
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
                     stroke="currentColor"
-                    className="w-6 h-6"
+                    className="w-4 h-4"
                 >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16M4 12h16" />
                 </svg>

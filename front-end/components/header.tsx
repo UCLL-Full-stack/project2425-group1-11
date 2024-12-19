@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import Language from '@components/language/Language';
+import { isUserLoggedIn } from '@services/LocalStorageService';
 
 const Header: React.FC = () => {
     const { t } = useTranslation('common');
@@ -9,14 +10,14 @@ const Header: React.FC = () => {
     const handleSignOut = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('loggedInUser');
-        window.location.href = '/login';
+        window.location.href = '/';
     };
 
     return (
-        <header className="flex justify-between items-center px-8 py-4 bg-white shadow">
+        <header className="flex justify-between items-center px-8 py-4 bg-white">
             {/* Left side of the navbar */}
-            <div className="flex items-center space-x-4">
-                <h1 className="text-2xl font-bold text-red-600">
+            <div className="text-xl flex items-center space-x-4">
+                <h1 className="text-2xl font-bold text-red-600 mr-3">
                     <Link href="/">
                         <span>Pinnacle</span>
                     </Link>
@@ -32,17 +33,27 @@ const Header: React.FC = () => {
             </div>
 
             {/* Right side of the navbar */}
-            <div className="flex items-center space-x-6">
+            <div className="text-xl flex items-center space-x-6">
                 <Language />
                 <Link href="/profile" className="text-gray-700 hover:text-black">
                     {t('header.nav.profile')}
                 </Link>
-                <button
-                    onClick={handleSignOut}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                >
-                    {t('header.nav.signout')}
-                </button>
+
+                {/* login / logout */}
+                {isUserLoggedIn() ? (
+                    <button
+                        onClick={handleSignOut}
+                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                    >
+                        {t('header.nav.signout')}
+                    </button>
+                ) : (
+                    <Link href="/login">
+                        <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                            {t('header.nav.login')}
+                        </button>
+                    </Link>
+                )}
             </div>
         </header>
     );
