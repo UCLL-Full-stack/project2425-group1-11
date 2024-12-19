@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'next-i18next';
 import Language from '@components/language/Language';
-import { isUserLoggedIn } from '@services/LocalStorageService';
+import { isUserLoggedIn, getUserRole } from '@services/LocalStorageService';
 
 const Header: React.FC = () => {
     const { t } = useTranslation('common');
+
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+
+    useEffect(() => {
+        const loggedIn = isUserLoggedIn();
+        setIsLoggedIn(loggedIn);
+        if (loggedIn) {
+            const userRole = getUserRole();
+            setIsAdmin(userRole === 'ADMIN');
+        }
+    }, []);
 
     const handleSignOut = () => {
         localStorage.removeItem('token');
@@ -29,6 +41,11 @@ const Header: React.FC = () => {
                     <Link href="/boards" className="text-gray-700 hover:text-black">
                         {t('header.nav.boards')}
                     </Link>
+                    {isAdmin && (
+                        <Link href="/admin" className="text-gray-700 hover:text-black">
+                            Admin
+                        </Link>
+                    )}
                 </nav>
             </div>
 
@@ -40,7 +57,7 @@ const Header: React.FC = () => {
                 </Link>
 
                 {/* login / logout */}
-                {isUserLoggedIn() ? (
+                {isLoggedIn ? (
                     <button
                         onClick={handleSignOut}
                         className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
