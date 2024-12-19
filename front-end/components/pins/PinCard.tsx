@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Modal from '@components/ui/Modal';
 import BoardService from '@services/BoardService';
 import PinService from '@services/PinService';
+import { isUserLoggedIn } from '@services/LocalStorageService';
 
 interface PinCardProps {
     id: number;
@@ -16,12 +18,12 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
     const [boards, setBoards] = useState<any[]>([]);
     const [selectedBoards, setSelectedBoards] = useState<Set<number>>(new Set());
     const [userHasBoards, setUserHasBoards] = useState(true);
-
     const [initialSelectedBoards, setInitialSelectedBoards] = useState<Set<number>>(new Set());
+    const router = useRouter();
 
     const fetchUserBoards = async () => {
         try {
-            const response = await BoardService.getUserBoards();
+            const response = await BoardService.getBoardByUserId();
             const data = response;
 
             if (data.length === 0) {
@@ -90,11 +92,19 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
         return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
     };
 
+    const handleModalOpen = () => {
+        if (!isUserLoggedIn()) {
+            router.push('/login');
+        } else {
+            setModalOpen(true);
+        }
+    };
+
     return (
         <>
             <div
                 className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer transition-transform transform hover:scale-105"
-                onClick={() => setModalOpen(true)}
+                onClick={handleModalOpen}
             >
                 <img src={imageUrl} alt={title} className="w-full h-[192px] object-cover" />
                 <div className="p-3">
@@ -169,14 +179,14 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
                                             type="checkbox"
                                             checked={selectedBoards.has(board.id)}
                                             onChange={() => handleBoardToggle(board.id)}
-                                            className="form-checkbox h-5 w-5 text-red-600 hover:cursor-pointer accent-red-500"
+                                            className="form-checkbox h-5 w-5 text-red-500 hover:cursor-pointer accent-red-500"
                                         />
                                         <label className="text-gray-700">{board.name}</label>
                                     </li>
                                 ))}
                             </ul>
                             <button
-                                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                                 onClick={handleSave}
                             >
                                 Add to boards
@@ -184,7 +194,7 @@ const PinCard: React.FC<PinCardProps> = ({ id, title, imageUrl, description, cat
                         </div>
                     ) : (
                         <div className="text-center text-red-500 mt-4">
-                            <a href="/boards" className="text-blue-600 hover:underline">
+                            <a href="/boards" className="text-red-500 hover:underline">
                                 Create a board
                             </a>
                         </div>
