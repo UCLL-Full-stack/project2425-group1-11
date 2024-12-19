@@ -1,5 +1,58 @@
 import { getToken, getUserId } from './LocalStorageService';
 
+const getAllBoards = async (): Promise<any> => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/boards`, {
+            method: 'GET',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text();
+            throw new Error(errorData || 'Failed to fetch boards');
+        }
+
+        const contentType = response.headers.get('Content-Type');
+
+        if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+
+            const filteredBoards = data.filter((board: any) => board.pins.length > 2);
+
+            return filteredBoards;
+        } else {
+            throw new Error('Expected JSON, but received: ' + contentType);
+        }
+    } catch (error) {
+        console.error('Error fetching boards:', error);
+        throw new Error('Unable to connect to the server or invalid input.');
+    }
+};
+
+const getBoardById = async (id: string): Promise<any> => {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/boards/${id}`, {
+            method: 'GET',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text();
+            throw new Error(errorData || 'Failed to fetch board details');
+        }
+
+        const contentType = response.headers.get('Content-Type');
+
+        if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+            return data;
+        } else {
+            throw new Error('Expected JSON, but received: ' + contentType);
+        }
+    } catch (error) {
+        console.error('Error fetching board details:', error);
+        throw new Error('Unable to connect to the server or invalid input.');
+    }
+};
+
 const updatePinBoards = async (pinId: number, boardIds: number[]) => {
     const token = getToken();
     if (!token) {
@@ -67,6 +120,8 @@ const getUserBoards = async (): Promise<any> => {
 };
 
 const BoardService = {
+    getAllBoards,
+    getBoardById,
     getUserBoards,
     updatePinBoards,
 };

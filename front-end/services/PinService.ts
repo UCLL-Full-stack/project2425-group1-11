@@ -38,17 +38,10 @@ const createPin = async (data: {
 
 const getPins = async (page: number = 1): Promise<Response> => {
     try {
-        const token = getToken();
-
-        if (!token) {
-            throw new Error('No authentication token found.');
-        }
-
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pins?page=${page}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
             },
         });
 

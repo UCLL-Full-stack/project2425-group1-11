@@ -1,3 +1,11 @@
+export const isUserLoggedIn = (): boolean => {
+    if (typeof window !== 'undefined') {
+        const loggedInUser = localStorage.getItem('loggedInUser');
+        if (loggedInUser) return true;
+    }
+    return false;
+};
+
 export const getToken = (): string | null => {
     if (typeof window !== 'undefined') {
         const loggedInUser = localStorage.getItem('loggedInUser');
