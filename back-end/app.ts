@@ -8,6 +8,7 @@ import PinController from './controller/pin';
 import CategoryController from './controller/category';
 import UserController from './controller/user';
 import BoardController from './controller/board';
+import AdminController from './controller/admin';
 import { expressjwt } from 'express-jwt';
 
 dotenv.config();
@@ -72,6 +73,7 @@ app.use('/pins', PinController);
 app.use('/categories', CategoryController);
 app.use('/users', UserController);
 app.use('/boards', BoardController);
+app.use('/admin', AdminController);
 
 app.listen(port, () => {
     console.log(`Back-end is running on port ${port}.`);
