@@ -20,7 +20,6 @@ Studenten, creatievelingen en professionals die visuele inspiratie nodig hebben.
 
 -   Aanmaken en beheren van boards.
 -   Uploaden en delen van pins.
--   Geavanceerde zoekfunctie.
 -   Profielbeheer voor gebruikers.
 -   Admin dashboard met statistieken.
 
